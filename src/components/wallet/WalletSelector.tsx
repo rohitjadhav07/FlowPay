@@ -12,7 +12,7 @@ export function WalletSelector() {
 
   const handleConnect = async (walletName: string) => {
     try {
-      await connect(walletName);
+      await connect();
       toast.success('Wallet connected successfully!');
       setShowWallets(false);
     } catch (error) {

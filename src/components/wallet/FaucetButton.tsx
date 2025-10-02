@@ -38,7 +38,7 @@ export function FaucetButton({ onBalanceUpdate }: FaucetButtonProps = {}) {
         toast.error('Faucet request failed. Opening web faucet...');
         const webFaucetUrl = `https://faucet.testnet.aptoslabs.com/?address=${account.address}`;
         window.open(webFaucetUrl, '_blank');
-        toast.info('Use the web faucet to fund your account, then refresh this page.');
+        toast('Use the web faucet to fund your account, then refresh this page.');
       }
     } catch (error) {
       console.error('Faucet error:', error);

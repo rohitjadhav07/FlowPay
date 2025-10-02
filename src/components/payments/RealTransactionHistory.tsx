@@ -130,7 +130,7 @@ export function RealTransactionHistory() {
         <div className="flex items-center space-x-2">
           <Select
             value={filter}
-            onChange={setFilter}
+            onChange={(value) => setFilter(value as 'all' | 'sent' | 'received')}
             className="text-sm"
           >
             <Option value="all">All Transactions</Option>

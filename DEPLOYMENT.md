@@ -1,462 +1,271 @@
-# FlowPay Deployment Guide
+# 🚀 FlowPay Deployment Guide
 
-This guide covers deploying FlowPay to production environments for the CTRL+MOVE Hackathon.
+This guide covers deploying FlowPay to various production environments.
 
-## Prerequisites
+## 📋 **Pre-deployment Checklist**
 
-- Node.js 18+ and npm/yarn
-- Aptos CLI installed and configured
-- Access to Aptos testnet/mainnet
-- Circle Wallet SDK credentials
-- Domain name and SSL certificate (for production)
+- [ ] All tests passing (`npm test`)
+- [ ] Build successful (`npm run build`)
+- [ ] Environment variables configured
+- [ ] Smart contracts deployed to testnet/mainnet
+- [ ] Security headers configured
+- [ ] Performance optimized
 
-## Smart Contract Deployment
+## 🌐 **Deployment Options**
 
-### 1. Compile Contracts
+### **Option 1: Vercel (Recommended)**
 
+#### **Quick Deploy**
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/flowpay)
+
+#### **Manual Deployment**
+1. **Install Vercel CLI:**
 ```bash
-# Compile all Move contracts
-aptos move compile
-
-# Run tests
-aptos move test
-```
-
-### 2. Deploy to Aptos Network
-
-```bash
-# Initialize Aptos account (if not done)
-aptos init
-
-# Fund account from faucet (testnet only)
-aptos account fund-with-faucet --account default
-
-# Deploy contracts
-aptos move publish --named-addresses flowpay=default
-
-# Verify deployment
-aptos account list --query modules --account default
-```
-
-### 3. Initialize Contracts
-
-```bash
-# Initialize payment router
-aptos move run --function-id default::payment_router::initialize
-
-# Initialize FOREX engine
-aptos move run --function-id default::forex_engine::initialize
-
-# Initialize treasury vault system
-aptos move run --function-id default::treasury_vault::initialize
-
-# Initialize compliance oracle
-aptos move run --function-id default::compliance_oracle::initialize
-
-# Initialize settlement bridge
-aptos move run --function-id default::settlement_bridge::initialize
-```
-
-## Frontend Deployment
-
-### 1. Environment Configuration
-
-Create `.env.production`:
-
-```bash
-# Aptos Configuration
-NEXT_PUBLIC_APTOS_NETWORK=mainnet
-NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.mainnet.aptoslabs.com/v1
-NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.mainnet.aptoslabs.com
-
-# Contract Addresses (update with deployed addresses)
-NEXT_PUBLIC_FLOWPAY_PAYMENT_ROUTER=0x[deployed_address]
-NEXT_PUBLIC_FLOWPAY_FOREX_ENGINE=0x[deployed_address]
-NEXT_PUBLIC_FLOWPAY_TREASURY_VAULT=0x[deployed_address]
-NEXT_PUBLIC_FLOWPAY_COMPLIANCE_ORACLE=0x[deployed_address]
-NEXT_PUBLIC_FLOWPAY_SETTLEMENT_BRIDGE=0x[deployed_address]
-
-# Circle Wallet SDK
-NEXT_PUBLIC_CIRCLE_APP_ID=your_production_app_id
-CIRCLE_API_KEY=your_production_api_key
-
-# Production URLs
-NEXT_PUBLIC_APP_URL=https://app.flowpay.finance
-```
-
-### 2. Build and Deploy
-
-#### Option A: Vercel (Recommended)
-
-```bash
-# Install Vercel CLI
 npm i -g vercel
-
-# Deploy to Vercel
-vercel --prod
-
-# Set environment variables
-vercel env add NEXT_PUBLIC_APTOS_NETWORK production
-vercel env add NEXT_PUBLIC_FLOWPAY_PAYMENT_ROUTER production
-# ... add all environment variables
 ```
 
-#### Option B: Docker Deployment
+2. **Login to Vercel:**
+```bash
+vercel login
+```
 
+3. **Deploy:**
+```bash
+vercel --prod
+```
+
+4. **Set Environment Variables:**
+```bash
+vercel env add NEXT_PUBLIC_APTOS_NETWORK
+vercel env add NEXT_PUBLIC_FLOWPAY_PAYMENT_ROUTER
+# Add all required environment variables
+```
+
+### **Option 2: Netlify**
+
+1. **Install Netlify CLI:**
+```bash
+npm i -g netlify-cli
+```
+
+2. **Build and Deploy:**
+```bash
+npm run build
+netlify deploy --prod --dir=.next
+```
+
+3. **Environment Variables:**
+Set in Netlify dashboard under Site Settings > Environment Variables
+
+### **Option 3: AWS Amplify**
+
+1. **Connect GitHub Repository:**
+- Go to AWS Amplify Console
+- Connect your GitHub repository
+- Configure build settings
+
+2. **Build Configuration:**
+```yaml
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+```
+
+### **Option 4: Docker Deployment**
+
+1. **Create Dockerfile:**
 ```dockerfile
-# Dockerfile
-FROM node:18-alpine AS builder
-
+FROM node:18-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
+FROM node:18-alpine AS builder
+WORKDIR /app
 COPY . .
+COPY --from=deps /app/node_modules ./node_modules
 RUN npm run build
 
 FROM node:18-alpine AS runner
 WORKDIR /app
-
-COPY --from=builder /app/next.config.js ./
+ENV NODE_ENV production
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+USER nextjs
 EXPOSE 3000
-ENV PORT 3000
-
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
 ```
 
+2. **Build and Run:**
 ```bash
-# Build and deploy
-docker build -t flowpay-app .
-docker run -p 3000:3000 --env-file .env.production flowpay-app
+docker build -t flowpay .
+docker run -p 3000:3000 flowpay
 ```
 
-#### Option C: AWS/GCP/Azure
+## 🔧 **Environment Configuration**
 
+### **Required Environment Variables**
+```env
+# Aptos Configuration
+NEXT_PUBLIC_APTOS_NETWORK=testnet
+NEXT_PUBLIC_APTOS_NODE_URL=https://fullnode.testnet.aptoslabs.com/v1
+NEXT_PUBLIC_APTOS_FAUCET_URL=https://faucet.testnet.aptoslabs.com
+
+# FlowPay Contracts
+NEXT_PUBLIC_FLOWPAY_PAYMENT_ROUTER=0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693
+NEXT_PUBLIC_FLOWPAY_FOREX_ENGINE=0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693
+NEXT_PUBLIC_FLOWPAY_TREASURY_VAULT=0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693
+NEXT_PUBLIC_FLOWPAY_COMPLIANCE_ORACLE=0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693
+NEXT_PUBLIC_FLOWPAY_SETTLEMENT_BRIDGE=0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693
+
+# Application
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
+
+### **Optional Production Variables**
+```env
+# Analytics
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+
+# Monitoring
+SENTRY_DSN=your_sentry_dsn
+
+# External APIs
+FOREX_API_KEY=your_forex_api_key
+COMPLIANCE_API_KEY=your_compliance_api_key
+```
+
+## 🔒 **Security Configuration**
+
+### **Security Headers**
+Already configured in `next.config.js`:
+- X-Frame-Options: DENY
+- X-Content-Type-Options: nosniff
+- Referrer-Policy: strict-origin-when-cross-origin
+- X-XSS-Protection: 1; mode=block
+
+### **HTTPS Configuration**
+- Ensure SSL/TLS certificates are properly configured
+- Use HTTPS redirects
+- Configure HSTS headers for production
+
+### **API Security**
+- Rate limiting for API endpoints
+- Input validation and sanitization
+- Proper error handling without information leakage
+
+## 📊 **Performance Optimization**
+
+### **Build Optimization**
 ```bash
-# Build for production
+# Analyze bundle size
+npm run analyze
+
+# Check build performance
+npm run build -- --profile
+```
+
+### **Caching Strategy**
+- Static assets: 1 year cache
+- API responses: Appropriate cache headers
+- CDN configuration for global distribution
+
+### **Monitoring**
+- Set up application monitoring (Sentry, DataDog, etc.)
+- Configure performance monitoring
+- Set up uptime monitoring
+
+## 🧪 **Testing in Production**
+
+### **Smoke Tests**
+```bash
+# Test critical user flows
+curl https://your-domain.com/api/health
+curl https://your-domain.com/api/status
+```
+
+### **Load Testing**
+```bash
+# Use tools like Artillery or k6
+artillery quick --count 10 --num 100 https://your-domain.com
+```
+
+## 🔄 **CI/CD Pipeline**
+
+### **GitHub Actions** (Already configured)
+- Automatic testing on PR
+- Deployment on merge to main
+- Environment-specific deployments
+
+### **Deployment Workflow**
+1. **Development** → Push to `develop` branch
+2. **Staging** → Create PR to `main`
+3. **Production** → Merge to `main` (auto-deploy)
+
+## 📈 **Scaling Considerations**
+
+### **Horizontal Scaling**
+- Load balancer configuration
+- Multiple instance deployment
+- Database scaling (if applicable)
+
+### **CDN Configuration**
+- Static asset distribution
+- API response caching
+- Geographic distribution
+
+## 🚨 **Troubleshooting**
+
+### **Common Issues**
+
+**Build Failures:**
+```bash
+# Clear cache and rebuild
+rm -rf .next node_modules
+npm install
 npm run build
-
-# Deploy to your preferred cloud provider
-# Follow their specific deployment guides
 ```
 
-## Database Setup (Optional)
-
-If using a database for additional features:
-
-```sql
--- PostgreSQL schema
-CREATE DATABASE flowpay;
-
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  wallet_address VARCHAR(66) UNIQUE NOT NULL,
-  kyc_level INTEGER DEFAULT 0,
-  risk_score INTEGER DEFAULT 50,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE transactions (
-  id SERIAL PRIMARY KEY,
-  tx_hash VARCHAR(66) UNIQUE NOT NULL,
-  from_address VARCHAR(66) NOT NULL,
-  to_address VARCHAR(66) NOT NULL,
-  amount DECIMAL(20, 8) NOT NULL,
-  currency VARCHAR(10) NOT NULL,
-  status VARCHAR(20) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  completed_at TIMESTAMP
-);
-
-CREATE TABLE contacts (
-  id SERIAL PRIMARY KEY,
-  user_address VARCHAR(66) NOT NULL,
-  contact_address VARCHAR(66) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  is_favorite BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Add indexes
-CREATE INDEX idx_users_wallet_address ON users(wallet_address);
-CREATE INDEX idx_transactions_from_address ON transactions(from_address);
-CREATE INDEX idx_transactions_to_address ON transactions(to_address);
-CREATE INDEX idx_contacts_user_address ON contacts(user_address);
-```
-
-## Monitoring and Analytics
-
-### 1. Error Tracking (Sentry)
-
+**Environment Variable Issues:**
 ```bash
-# Install Sentry
-npm install @sentry/nextjs
-
-# Configure in next.config.js
-const { withSentryConfig } = require('@sentry/nextjs');
-
-module.exports = withSentryConfig({
-  // Your Next.js config
-}, {
-  silent: true,
-  org: "flowpay",
-  project: "flowpay-app",
-});
+# Verify environment variables
+vercel env ls
+# or check your deployment platform
 ```
 
-### 2. Analytics (Google Analytics)
-
-```typescript
-// lib/gtag.ts
-export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;
-
-export const pageview = (url: string) => {
-  window.gtag('config', GA_TRACKING_ID, {
-    page_path: url,
-  });
-};
-
-export const event = ({ action, category, label, value }: {
-  action: string;
-  category: string;
-  label?: string;
-  value?: number;
-}) => {
-  window.gtag('event', action, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  });
-};
-```
-
-### 3. Performance Monitoring
-
-```typescript
-// lib/performance.ts
-export const trackPerformance = () => {
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    window.addEventListener('load', () => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      
-      // Track key metrics
-      const metrics = {
-        ttfb: navigation.responseStart - navigation.requestStart,
-        fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime,
-        lcp: performance.getEntriesByType('largest-contentful-paint')[0]?.startTime,
-      };
-      
-      // Send to analytics
-      console.log('Performance metrics:', metrics);
-    });
-  }
-};
-```
-
-## Security Considerations
-
-### 1. Environment Variables
-
-- Never commit sensitive keys to version control
-- Use different keys for development/staging/production
-- Rotate API keys regularly
-- Use secrets management services in production
-
-### 2. Content Security Policy
-
-```javascript
-// next.config.js
-const securityHeaders = [
-  {
-    key: 'Content-Security-Policy',
-    value: `
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-analytics.com;
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' data: https:;
-      font-src 'self';
-      connect-src 'self' *.aptoslabs.com *.circle.com;
-    `.replace(/\s{2,}/g, ' ').trim()
-  }
-];
-
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: securityHeaders,
-      },
-    ];
-  },
-};
-```
-
-### 3. Rate Limiting
-
-```typescript
-// middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-const rateLimitMap = new Map();
-
-export function middleware(request: NextRequest) {
-  const ip = request.ip ?? '127.0.0.1';
-  const limit = 100; // requests per hour
-  const windowMs = 60 * 60 * 1000; // 1 hour
-
-  if (!rateLimitMap.has(ip)) {
-    rateLimitMap.set(ip, {
-      count: 0,
-      lastReset: Date.now(),
-    });
-  }
-
-  const ipData = rateLimitMap.get(ip);
-
-  if (Date.now() - ipData.lastReset > windowMs) {
-    ipData.count = 0;
-    ipData.lastReset = Date.now();
-  }
-
-  if (ipData.count >= limit) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429 }
-    );
-  }
-
-  ipData.count += 1;
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: '/api/:path*',
-};
-```
-
-## Testing in Production
-
-### 1. Health Checks
-
-```typescript
-// pages/api/health.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  try {
-    // Check database connection
-    // Check external API availability
-    // Check contract deployment
-    
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version,
-    });
-  } catch (error) {
-    res.status(503).json({
-      status: 'unhealthy',
-      error: error.message,
-    });
-  }
-}
-```
-
-### 2. Integration Tests
-
+**Performance Issues:**
 ```bash
-# Run integration tests against deployed contracts
-npm run test:integration
-
-# Test wallet connections
-npm run test:wallet
-
-# Test payment flows
-npm run test:payments
+# Analyze bundle
+npm run analyze
+# Check for large dependencies
+npx bundlephobia
 ```
 
-## Backup and Recovery
+## 📞 **Support**
 
-### 1. Smart Contract Upgrades
+- **Documentation**: [docs.flowpay.finance](https://docs.flowpay.finance)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/flowpay/issues)
+- **Discord**: [FlowPay Community](https://discord.gg/flowpay)
+- **Email**: support@flowpay.finance
 
-```bash
-# Create upgrade proposal (if using upgradeable contracts)
-aptos move create-upgrade-proposal --package-dir . --metadata-url https://flowpay.finance/upgrade-metadata.json
+---
 
-# Vote on upgrade (multi-sig)
-aptos governance vote --proposal-id 1 --should-pass
-
-# Execute upgrade
-aptos governance execute-proposal --proposal-id 1
-```
-
-### 2. Data Backup
-
-```bash
-# Backup user data
-pg_dump flowpay > backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Backup to cloud storage
-aws s3 cp backup_*.sql s3://flowpay-backups/
-```
-
-## Monitoring Checklist
-
-- [ ] Smart contracts deployed and initialized
-- [ ] Frontend deployed and accessible
-- [ ] SSL certificate configured
-- [ ] Environment variables set
-- [ ] Database migrations run
-- [ ] Error tracking configured
-- [ ] Analytics tracking working
-- [ ] Performance monitoring active
-- [ ] Health checks passing
-- [ ] Backup procedures tested
-- [ ] Security headers configured
-- [ ] Rate limiting enabled
-
-## Post-Deployment
-
-1. **Test all critical flows**:
-   - Wallet connection
-   - Payment sending
-   - FOREX trading
-   - Treasury management
-
-2. **Monitor key metrics**:
-   - Transaction success rate
-   - Average settlement time
-   - Error rates
-   - User engagement
-
-3. **Set up alerts**:
-   - High error rates
-   - Slow response times
-   - Failed transactions
-   - Security incidents
-
-4. **Documentation**:
-   - Update API documentation
-   - Create user guides
-   - Document troubleshooting procedures
-
-## Support and Maintenance
-
-- Monitor Aptos network status
-- Keep dependencies updated
-- Regular security audits
-- Performance optimization
-- User feedback integration
-
-For hackathon demo purposes, focus on testnet deployment with mock data to showcase all features effectively.
+**🎉 Congratulations! Your FlowPay deployment is now live and ready for users!**

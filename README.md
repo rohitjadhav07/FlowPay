@@ -1,42 +1,51 @@
 # FlowPay: Global Instant Settlement Network
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Aptos](https://img.shields.io/badge/Built%20on-Aptos-blue)](https://aptos.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/flowpay)
+
 **The first cross-border payment network that settles instantly using Aptos parallel execution, enabling real-time FOREX trading and automated treasury management for global businesses.**
 
-## 🚀 Quick Start
+## 🚀 **Quick Start**
 
-### Prerequisites
-- Node.js 18+ and npm/yarn
-- Aptos CLI installed
-- Circle Wallet SDK access (optional)
+### **🎮 Try FlowPay Now**
+**Live Demo**: [https://flowpay-demo.vercel.app](https://flowpay-demo.vercel.app)
 
-### Quick Setup
+### **⚡ One-Click Deploy**
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/flowpay)
+
+### **💻 Local Development**
 
 1. **Clone and install:**
 ```bash
-git clone https://github.com/your-repo/flowpay
+git clone https://github.com/yourusername/flowpay.git
 cd flowpay
-
-# Windows (PowerShell)
-.\setup-simple.ps1
-
-# Windows (Command Prompt)
-.\setup-simple.bat
-
-# Mac/Linux
-chmod +x setup-simple.sh
-./setup-simple.sh
+npm install
 ```
 
-2. **Install Petra Wallet:**
+2. **Configure environment:**
+```bash
+cp .env.example .env.local
+# Environment is pre-configured with testnet contracts
+```
+
+3. **Install Petra Wallet:**
 - Install [Petra Wallet](https://petra.app/) browser extension
 - Switch to **Aptos Testnet** in Petra settings
+- Get testnet APT from the faucet
 
-3. **Start the app:**
+4. **Start development:**
 ```bash
 npm run dev
+# Open http://localhost:3000
 ```
 
-4. **Open http://localhost:3000**
+### **🔧 Prerequisites**
+- Node.js 18+ and npm
+- [Petra Wallet](https://petra.app/) browser extension
+- Aptos CLI (for contract deployment)
 
 ### Deploy Smart Contracts (Optional)
 

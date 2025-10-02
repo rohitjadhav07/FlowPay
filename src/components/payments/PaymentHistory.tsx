@@ -171,7 +171,7 @@ export function PaymentHistory() {
         <div className="flex space-x-2">
           <Select
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={(value) => setStatusFilter(value as 'all' | 'completed' | 'pending' | 'failed')}
           >
             <Option value="all">All Status</Option>
             <Option value="completed">Completed</Option>
@@ -181,7 +181,7 @@ export function PaymentHistory() {
           
           <Select
             value={typeFilter}
-            onChange={setTypeFilter}
+            onChange={(value) => setTypeFilter(value as 'all' | 'sent' | 'received')}
           >
             <Option value="all">All Types</Option>
             <Option value="sent">Sent</Option>
