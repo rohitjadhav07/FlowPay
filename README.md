@@ -4,24 +4,21 @@
 [![Aptos](https://img.shields.io/badge/Built%20on-Aptos-blue)](https://aptos.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/flowpay)
+
 
 **The first cross-border payment network that settles instantly using Aptos parallel execution, enabling real-time FOREX trading and automated treasury management for global businesses.**
 
 ## 🚀 **Quick Start**
 
 ### **🎮 Try FlowPay Now**
-**Live Demo**: [https://flowpay-demo.vercel.app](https://flowpay-demo.vercel.app)
+**Live Demo**: [https://flow-pay-one.vercel.app/](https://flow-pay-one.vercel.app/)
 
-### **⚡ One-Click Deploy**
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/flowpay)
 
 ### **💻 Local Development**
 
 1. **Clone and install:**
 ```bash
-git clone https://github.com/yourusername/flowpay.git
-cd flowpay
+git clone https://github.com/rohitjadhav07/FlowPay.git
 npm install
 ```
 
@@ -258,10 +255,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🔗 Links
 
-- **Demo**: [https://flowpay-demo.vercel.app](https://flowpay-demo.vercel.app)
-- **Docs**: [https://docs.flowpay.finance](https://docs.flowpay.finance)
-- **Twitter**: [@FlowPayFinance](https://twitter.com/FlowPayFinance)
-- **Discord**: [FlowPay Community](https://discord.gg/flowpay)
+- **Demo**: [https://flow-pay-one.vercel.app/](https://flow-pay-one.vercel.app/)
 
 ---
 
