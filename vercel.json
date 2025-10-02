@@ -1,0 +1,53 @@
+{
+  "name": "flowpay",
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_APTOS_NETWORK": "testnet",
+    "NEXT_PUBLIC_APTOS_NODE_URL": "https://fullnode.testnet.aptoslabs.com/v1",
+    "NEXT_PUBLIC_APTOS_FAUCET_URL": "https://faucet.testnet.aptoslabs.com",
+    "NEXT_PUBLIC_FLOWPAY_PAYMENT_ROUTER": "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693",
+    "NEXT_PUBLIC_FLOWPAY_FOREX_ENGINE": "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693",
+    "NEXT_PUBLIC_FLOWPAY_TREASURY_VAULT": "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693",
+    "NEXT_PUBLIC_FLOWPAY_COMPLIANCE_ORACLE": "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693",
+    "NEXT_PUBLIC_FLOWPAY_SETTLEMENT_BRIDGE": "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693"
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/github",
+      "destination": "https://github.com/yourusername/flowpay"
+    },
+    {
+      "source": "/docs",
+      "destination": "https://docs.flowpay.finance"
+    }
+  ]
+}
